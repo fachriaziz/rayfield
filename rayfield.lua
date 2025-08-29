@@ -2727,14 +2727,6 @@ function RayfieldLibrary:CreateWindow(Settings)
 
 			Dropdown.List.Visible = false
 			Dropdown.List.Position = UDim2.new(0, 0, 0, 85)
-			-- Ensure the dropdown list has horizontal padding so items aren't too far left
-			if not Dropdown.List:FindFirstChild("ContentPadding") then
-				local listPadding = Instance.new("UIPadding")
-				listPadding.Name = "ContentPadding"
-				listPadding.PaddingLeft = UDim.new(0, 10)
-				listPadding.PaddingRight = UDim.new(0, 10)
-				listPadding.Parent = Dropdown.List
-			end
 			if DropdownSettings.CurrentOption then
 				if type(DropdownSettings.CurrentOption) == "string" then
 					DropdownSettings.CurrentOption = {DropdownSettings.CurrentOption}
@@ -2867,10 +2859,9 @@ function RayfieldLibrary:CreateWindow(Settings)
 					DropdownOption.Parent = Dropdown.List
 					DropdownOption.Visible = true
 
-					-- Center the option text and add internal padding
-					DropdownOption.Title.TextXAlignment = Enum.TextXAlignment.Center
-					DropdownOption.Title.Position = UDim2.new(0, 10, 0, 0)
-					DropdownOption.Title.Size = UDim2.new(1, -20, 1, 0)
+					-- Move dropdown items to the right to center them
+					DropdownOption.Position = UDim2.new(0, 20, 0, 0)
+					DropdownOption.Size = UDim2.new(1, -40, 0, 25)
 
 					DropdownOption.BackgroundTransparency = 1
 					DropdownOption.UIStroke.Transparency = 1
