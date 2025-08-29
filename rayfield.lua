@@ -2855,6 +2855,21 @@ function RayfieldLibrary:CreateWindow(Settings)
 			SearchBox.ZIndex = 51
 			SearchBox.Active = true
 
+			-- Match font and size with existing library typography
+			pcall(function()
+				if Dropdown and Dropdown:FindFirstChild("Selected") then
+					local ref = Dropdown.Selected
+					if ref and ref.FontFace then
+						SearchBox.FontFace = ref.FontFace
+					else
+						SearchBox.Font = ref.Font
+					end
+					if ref and ref.TextSize then
+						SearchBox.TextSize = ref.TextSize
+					end
+				end
+			end)
+
 			local function filterDropdownOptions()
 				local query = string.lower(SearchBox.Text or "")
 				for _, child in ipairs(Dropdown.List:GetChildren()) do
