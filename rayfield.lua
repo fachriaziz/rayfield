@@ -13,6 +13,16 @@
 	- RayfieldLibrary:LoadConfig() - Manually load saved configuration
 	
 	Usage Example:
+	local Window = RayfieldLibrary:CreateWindow({
+		Name = "My Script",
+		ConfigurationSaving = {
+			Enabled = false, -- Disable auto-save/load
+			FolderName = "MyConfigs",
+			FileName = "MyConfig"
+		},
+		ManualSave = true -- Enable manual save/load
+	})
+	
 	local SaveButton = Tab:CreateButton({
 		Name = "Save Configuration",
 		Callback = function()
@@ -766,6 +776,7 @@ local Icons = useStudio and require(script.Parent.icons) or loadWithTimeout('htt
 
 local CFileName = nil
 local CEnabled = false
+local ManualSaveEnabled = false
 local Minimised = false
 local Hidden = false
 local Debounce = false
@@ -1716,11 +1727,18 @@ function RayfieldLibrary:CreateWindow(Settings)
 			Settings.ConfigurationSaving.Enabled = false
 		end
 
+		-- Handle ManualSave parameter
+		if Settings.ManualSave == nil then
+			Settings.ManualSave = false
+		end
+
 		CFileName = Settings.ConfigurationSaving.FileName
 		ConfigurationFolder = Settings.ConfigurationSaving.FolderName or ConfigurationFolder
 		CEnabled = Settings.ConfigurationSaving.Enabled
+		ManualSaveEnabled = Settings.ManualSave
 
-		if Settings.ConfigurationSaving.Enabled then
+		-- Create folder if either auto-save or manual save is enabled
+		if Settings.ConfigurationSaving.Enabled or Settings.ManualSave then
 			if not isfolder(ConfigurationFolder) then
 				makefolder(ConfigurationFolder)
 			end	
@@ -3880,8 +3898,8 @@ end
 
 -- Manual Save Configuration Function
 function RayfieldLibrary:SaveConfig()
-	if not CEnabled then
-		RayfieldLibrary:Notify({Title = "Configuration Error", Content = "Configuration saving is not enabled for this script.", Image = 4384402990})
+	if not ManualSaveEnabled then
+		RayfieldLibrary:Notify({Title = "Configuration Error", Content = "Manual configuration saving is not enabled for this script.", Image = 4384402990})
 		return false
 	end
 
@@ -3906,8 +3924,8 @@ end
 
 -- Manual Load Configuration Function
 function RayfieldLibrary:LoadConfig()
-	if not CEnabled then
-		RayfieldLibrary:Notify({Title = "Configuration Error", Content = "Configuration saving is not enabled for this script.", Image = 4384402990})
+	if not ManualSaveEnabled then
+		RayfieldLibrary:Notify({Title = "Configuration Error", Content = "Manual configuration saving is not enabled for this script.", Image = 4384402990})
 		return false
 	end
 
