@@ -994,7 +994,7 @@ local function LoadConfiguration(Configuration)
 end
 
 local function SaveConfiguration()
-	if not CEnabled or not globalLoaded then return end
+	if not (CEnabled or ManualSaveEnabled) or not globalLoaded then return end
 
 	if debugX then
 		print('Saving')
@@ -3905,6 +3905,11 @@ function RayfieldLibrary:SaveConfig()
 
 	if not writefile then
 		RayfieldLibrary:Notify({Title = "Configuration Error", Content = "Cannot save configuration - no filesystem support available.", Image = 4384402990})
+		return false
+	end
+
+	if not globalLoaded then
+		RayfieldLibrary:Notify({Title = "Configuration Error", Content = "Configuration system not ready yet. Please wait a moment.", Image = 4384402990})
 		return false
 	end
 
