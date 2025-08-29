@@ -3921,11 +3921,10 @@ function RayfieldLibrary:LoadConfig()
 			local loaded = LoadConfiguration(readfile(ConfigurationFolder .. "/" .. CFileName .. ConfigurationExtension))
 			if loaded then
 				RayfieldLibrary:Notify({Title = "Configuration Loaded", Content = "Configuration has been loaded successfully!", Image = 4384403532})
-				return true
 			else
 				RayfieldLibrary:Notify({Title = "Load Error", Content = "No changes were made to the configuration.", Image = 4384402990})
-				return false
 			end
+			return loaded
 		else
 			RayfieldLibrary:Notify({Title = "Load Error", Content = "No configuration file found to load.", Image = 4384402990})
 			return false
