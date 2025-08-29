@@ -2758,6 +2758,12 @@ function RayfieldLibrary:CreateWindow(Settings)
 					-- Closing: re-enable header interact so it can be clicked again later
 					Dropdown.Interact.Active = true
 					Dropdown.Interact.Visible = true
+					pcall(function()
+						local sc = Dropdown.List:FindFirstChild("Placeholder")
+						if sc and sc:FindFirstChild("SearchBox") then
+							sc.SearchBox:ReleaseFocus()
+						end
+					end)
 					Debounce = true
 					TweenService:Create(Dropdown, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {Size = UDim2.new(1, -10, 0, 45)}):Play()
 					for _, DropdownOpt in ipairs(Dropdown.List:GetChildren()) do
@@ -2860,6 +2866,16 @@ function RayfieldLibrary:CreateWindow(Settings)
 			end
 
 			SearchBox:GetPropertyChangedSignal("Text"):Connect(filterDropdownOptions)
+			SearchContainer.InputBegan:Connect(function(input)
+				if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+					SearchBox:CaptureFocus()
+				end
+			end)
+			SearchBox.InputBegan:Connect(function(input)
+				if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+					SearchBox:CaptureFocus()
+				end
+			end)
 			SearchBox.Focused:Connect(function()
 				-- prevent accidental close when focusing
 				if Dropdown and Dropdown.List and Dropdown.List.Visible then
