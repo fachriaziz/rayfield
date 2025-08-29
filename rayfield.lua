@@ -2806,6 +2806,8 @@ function RayfieldLibrary:CreateWindow(Settings)
 			SearchContainer.BackgroundTransparency = 0
 			SearchContainer.LayoutOrder = -100
 			SearchContainer.BorderSizePixel = 0
+			SearchContainer.ZIndex = 50
+			SearchContainer.Active = true
 
 			local SearchStroke = Instance.new("UIStroke")
 			SearchStroke.Parent = SearchContainer
@@ -2830,6 +2832,8 @@ function RayfieldLibrary:CreateWindow(Settings)
 			SearchBox.TextSize = 14
 			SearchBox.TextColor3 = SelectedTheme.TextColor
 			SearchBox.PlaceholderColor3 = SelectedTheme.PlaceholderColor or Color3.fromRGB(150,150,150)
+			SearchBox.ZIndex = 51
+			SearchBox.Active = true
 
 			local function filterDropdownOptions()
 				local query = string.lower(SearchBox.Text or "")
