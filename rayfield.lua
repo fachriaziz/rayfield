@@ -2859,9 +2859,9 @@ function RayfieldLibrary:CreateWindow(Settings)
 					DropdownOption.Parent = Dropdown.List
 					DropdownOption.Visible = true
 
-					-- Move dropdown button/option to the right
-					DropdownOption.Position = UDim2.new(0, 15, 0, 0)
-					DropdownOption.Size = UDim2.new(1, -30, 0, 25)
+					-- Move dropdown button/option more to the right to center it
+					DropdownOption.Position = UDim2.new(0, 25, 0, 0)
+					DropdownOption.Size = UDim2.new(1, -50, 0, 25)
 
 					DropdownOption.BackgroundTransparency = 1
 					DropdownOption.UIStroke.Transparency = 1
