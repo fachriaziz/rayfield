@@ -2701,7 +2701,8 @@ function RayfieldLibrary:CreateWindow(Settings)
 			local SearchBox = Instance.new("TextBox")
 			SearchBox.Name = "SearchBox"
 			SearchBox.Size = UDim2.new(1, -20, 0, 25)
-			SearchBox.Position = UDim2.new(0, 10, 0, 50)
+			SearchBox.AnchorPoint = Vector2.new(0.5, 0.5)
+			SearchBox.Position = UDim2.new(0.5, 0, 0, 62)
 			SearchBox.BackgroundColor3 = SelectedTheme.InputBackground
 			SearchBox.BorderSizePixel = 0
 			SearchBox.Text = ""
@@ -2726,12 +2727,12 @@ function RayfieldLibrary:CreateWindow(Settings)
 			SearchBoxCorner.Parent = SearchBox
 
 			Dropdown.List.Visible = false
-			Dropdown.List.Position = UDim2.new(0, 0, 0, 85)
+			Dropdown.List.Position = UDim2.new(0, 0, 0, 95)
 			
-			-- Add padding to shift dropdown options to the right
+			-- Optional: minimal inner padding for visual balance
 			local ListPadding = Instance.new("UIPadding")
-			ListPadding.PaddingLeft = UDim.new(0, 40)
-			ListPadding.PaddingRight = UDim.new(0, 40)
+			ListPadding.PaddingLeft = UDim.new(0, 10)
+			ListPadding.PaddingRight = UDim.new(0, 10)
 			ListPadding.Parent = Dropdown.List
 			if DropdownSettings.CurrentOption then
 				if type(DropdownSettings.CurrentOption) == "string" then
@@ -2868,11 +2869,7 @@ function RayfieldLibrary:CreateWindow(Settings)
 					DropdownOption.UIStroke.Transparency = 1
 					DropdownOption.Title.TextTransparency = 1
 					
-					-- Add padding to each dropdown option to shift them to the right
-					local OptionPadding = Instance.new("UIPadding")
-					OptionPadding.PaddingLeft = UDim.new(0, 20)
-					OptionPadding.PaddingRight = UDim.new(0, 20)
-					OptionPadding.Parent = DropdownOption
+					-- Keep options aligned with list padding; no extra per-option padding
 
 					--local Dropdown = Tab:CreateDropdown({
 					--	Name = "Dropdown Example",
