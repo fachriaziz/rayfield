@@ -2856,7 +2856,7 @@ function RayfieldLibrary:CreateWindow(Settings)
 			SearchBox.Parent = SearchContainer
 			SearchBox.BackgroundTransparency = 1
 			SearchBox.Size = UDim2.new(1, -16, 1, 0)
-			SearchBox.Position = UDim2.new(0, 0, 0, 0)
+			SearchBox.Position = UDim2.new(0, 8, 0, 0)
 			SearchBox.ClearTextOnFocus = false
 			SearchBox.TextXAlignment = Enum.TextXAlignment.Left
 			SearchBox.Text = ""
