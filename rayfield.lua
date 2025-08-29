@@ -2759,7 +2759,7 @@ function RayfieldLibrary:CreateWindow(Settings)
 					Dropdown.Interact.Active = true
 					Dropdown.Interact.Visible = true
 					pcall(function()
-						local sc = Dropdown.List:FindFirstChild("Placeholder")
+						local sc = Dropdown:FindFirstChild("Placeholder") or Dropdown.List:FindFirstChild("Placeholder")
 						if sc and sc:FindFirstChild("SearchBox") then
 							sc.SearchBox:ReleaseFocus()
 						end
@@ -2789,8 +2789,9 @@ function RayfieldLibrary:CreateWindow(Settings)
 					-- Ensure search box is visible and focused on open
 					pcall(function()
 						Dropdown.List.CanvasPosition = Vector2.new(0, 0)
-						local sc = Dropdown.List:FindFirstChild("Placeholder")
+						local sc = Dropdown:FindFirstChild("Placeholder") or Dropdown.List:FindFirstChild("Placeholder")
 						if sc and sc:FindFirstChild("SearchBox") then
+							sc.Visible = true
 							sc.SearchBox:CaptureFocus()
 						end
 					end)
@@ -2816,18 +2817,29 @@ function RayfieldLibrary:CreateWindow(Settings)
 				TweenService:Create(Dropdown, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.ElementBackground}):Play()
 			end)
 
-			-- Search box for dropdown options (does not change external size/position)
+			-- Search box for dropdown options (fixed, does not change external size/position)
 			local SearchContainer = Instance.new("Frame")
 			SearchContainer.Name = "Placeholder"
-			SearchContainer.Parent = Dropdown.List
-			SearchContainer.Visible = true
+			SearchContainer.Parent = Dropdown
+			SearchContainer.Visible = false
 			SearchContainer.BackgroundColor3 = SelectedTheme.InputBackground
-			SearchContainer.Size = UDim2.new(1, -10, 0, 30)
+			local listPos = Dropdown.List.Position
+			local listSize = Dropdown.List.Size
+			SearchContainer.Position = UDim2.new(listPos.X.Scale, listPos.X.Offset + 5, listPos.Y.Scale, listPos.Y.Offset + 5)
+			SearchContainer.Size = UDim2.new(listSize.X.Scale, math.max(0, (listSize.X.Offset or 0) - 10), 0, 30)
 			SearchContainer.BackgroundTransparency = 0
-			SearchContainer.LayoutOrder = -100
 			SearchContainer.BorderSizePixel = 0
 			SearchContainer.ZIndex = 50
 			SearchContainer.Active = true
+
+			-- Add top padding in the scrolling list so options don't overlap the fixed search bar
+			local SearchPadding = Dropdown.List:FindFirstChild("SearchPadding")
+			if not SearchPadding then
+				SearchPadding = Instance.new("UIPadding")
+				SearchPadding.Name = "SearchPadding"
+				SearchPadding.Parent = Dropdown.List
+			end
+			SearchPadding.PaddingTop = UDim.new(0, 36)
 
 			local SearchStroke = Instance.new("UIStroke")
 			SearchStroke.Parent = SearchContainer
