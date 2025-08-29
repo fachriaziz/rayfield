@@ -8,35 +8,6 @@
 	Max    | Programming
 	Damian | Programming
 
-	Manual Configuration Functions:
-	- RayfieldLibrary:SaveConfig() - Manually save current configuration
-	- RayfieldLibrary:LoadConfig() - Manually load saved configuration
-	
-	Usage Example:
-	local Window = RayfieldLibrary:CreateWindow({
-		Name = "My Script",
-		ConfigurationSaving = {
-			Enabled = false, -- Disable auto-save/load
-			FolderName = "MyConfigs",
-			FileName = "MyConfig"
-		},
-		ManualSave = true -- Enable manual save/load
-	})
-	
-	local SaveButton = Tab:CreateButton({
-		Name = "Save Configuration",
-		Callback = function()
-			RayfieldLibrary:SaveConfig()
-		end,
-	})
-	
-	local LoadButton = Tab:CreateButton({
-		Name = "Load Configuration", 
-		Callback = function()
-			RayfieldLibrary:LoadConfig()
-		end,
-	})
-
 ]]
 
 if debugX then
@@ -294,7 +265,6 @@ end
 
 local RayfieldLibrary = {
 	Flags = {},
-	globalLoaded = false,
 	Theme = {
 		Default = {
 			TextColor = Color3.fromRGB(240, 240, 240),
@@ -688,6 +658,7 @@ local Rayfield = useStudio and script.Parent:FindFirstChild('Rayfield') or game:
 local buildAttempts = 0
 local correctBuild = false
 local warned
+local globalLoaded
 local rayfieldDestroyed = false -- True when RayfieldLibrary:Destroy() is called
 
 repeat
@@ -776,7 +747,6 @@ local Icons = useStudio and require(script.Parent.icons) or loadWithTimeout('htt
 
 local CFileName = nil
 local CEnabled = false
-local ManualSaveEnabled = false
 local Minimised = false
 local Hidden = false
 local Debounce = false
@@ -963,9 +933,9 @@ end
 
 local function LoadConfiguration(Configuration)
 	local success, Data = pcall(function() return HttpService:JSONDecode(Configuration) end)
-	local changed = false
+	local changed
 
-	if not success then warn('Rayfield had an issue decoding the configuration file, please try delete the file and reopen Rayfield.') return false end
+	if not success then warn('Rayfield had an issue decoding the configuration file, please try delete the file and reopen Rayfield.') return end
 
 	-- Iterate through current UI elements' flags
 	for FlagName, Flag in pairs(RayfieldLibrary.Flags) do
@@ -994,7 +964,7 @@ local function LoadConfiguration(Configuration)
 end
 
 local function SaveConfiguration()
-	if not (CEnabled or ManualSaveEnabled) or not RayfieldLibrary.globalLoaded then return end
+	if not CEnabled or not globalLoaded then return end
 
 	if debugX then
 		print('Saving')
@@ -1727,25 +1697,11 @@ function RayfieldLibrary:CreateWindow(Settings)
 			Settings.ConfigurationSaving.Enabled = false
 		end
 
-		-- Handle ManualSave parameter
-		if Settings.ManualSave == nil then
-			Settings.ManualSave = false
-		end
-
 		CFileName = Settings.ConfigurationSaving.FileName
 		ConfigurationFolder = Settings.ConfigurationSaving.FolderName or ConfigurationFolder
 		CEnabled = Settings.ConfigurationSaving.Enabled
-		ManualSaveEnabled = Settings.ManualSave
-		
-		-- Make these accessible from outside
-		RayfieldLibrary.CEnabled = CEnabled
-		RayfieldLibrary.ManualSaveEnabled = ManualSaveEnabled
-		RayfieldLibrary.globalLoaded = RayfieldLibrary.globalLoaded
-		RayfieldLibrary.ConfigurationFolder = ConfigurationFolder
-		RayfieldLibrary.CFileName = CFileName
 
-		-- Create folder if either auto-save or manual save is enabled
-		if Settings.ConfigurationSaving.Enabled or Settings.ManualSave then
+		if Settings.ConfigurationSaving.Enabled then
 			if not isfolder(ConfigurationFolder) then
 				makefolder(ConfigurationFolder)
 			end	
@@ -2427,7 +2383,7 @@ function RayfieldLibrary:CreateWindow(Settings)
 			end)
 
 			if Settings.ConfigurationSaving then
-				if (Settings.ConfigurationSaving.Enabled or Settings.ManualSave) and ColorPickerSettings.Flag then
+				if Settings.ConfigurationSaving.Enabled and ColorPickerSettings.Flag then
 					RayfieldLibrary.Flags[ColorPickerSettings.Flag] = ColorPickerSettings
 				end
 			end
@@ -2716,7 +2672,7 @@ function RayfieldLibrary:CreateWindow(Settings)
 			end
 
 			if Settings.ConfigurationSaving then
-				if (Settings.ConfigurationSaving.Enabled or Settings.ManualSave) and InputSettings.Flag then
+				if Settings.ConfigurationSaving.Enabled and InputSettings.Flag then
 					RayfieldLibrary.Flags[InputSettings.Flag] = InputSettings
 				end
 			end
@@ -3137,7 +3093,7 @@ function RayfieldLibrary:CreateWindow(Settings)
 			end
 
 			if Settings.ConfigurationSaving then
-				if (Settings.ConfigurationSaving.Enabled or Settings.ManualSave) and DropdownSettings.Flag then
+				if Settings.ConfigurationSaving.Enabled and DropdownSettings.Flag then
 					RayfieldLibrary.Flags[DropdownSettings.Flag] = DropdownSettings
 				end
 			end
@@ -3268,7 +3224,7 @@ function RayfieldLibrary:CreateWindow(Settings)
 			end
 
 			if Settings.ConfigurationSaving then
-				if (Settings.ConfigurationSaving.Enabled or Settings.ManualSave) and KeybindSettings.Flag then
+				if Settings.ConfigurationSaving.Enabled and KeybindSettings.Flag then
 					RayfieldLibrary.Flags[KeybindSettings.Flag] = KeybindSettings
 				end
 			end
@@ -3422,7 +3378,7 @@ function RayfieldLibrary:CreateWindow(Settings)
 
 			if not ToggleSettings.Ext then
 				if Settings.ConfigurationSaving then
-					if (Settings.ConfigurationSaving.Enabled or Settings.ManualSave) and ToggleSettings.Flag then
+					if Settings.ConfigurationSaving.Enabled and ToggleSettings.Flag then
 						RayfieldLibrary.Flags[ToggleSettings.Flag] = ToggleSettings
 					end
 				end
@@ -3605,7 +3561,7 @@ function RayfieldLibrary:CreateWindow(Settings)
 			end
 
 			if Settings.ConfigurationSaving then
-				if (Settings.ConfigurationSaving.Enabled or Settings.ManualSave) and SliderSettings.Flag then
+				if Settings.ConfigurationSaving.Enabled and SliderSettings.Flag then
 					RayfieldLibrary.Flags[SliderSettings.Flag] = SliderSettings
 				end
 			end
@@ -3900,74 +3856,7 @@ function RayfieldLibrary:LoadConfiguration()
 		end
 	end
 
-	RayfieldLibrary.globalLoaded = true
-end
-
--- Manual Save Configuration Function
-function RayfieldLibrary:SaveConfig()
-	if not ManualSaveEnabled then
-		RayfieldLibrary:Notify({Title = "Configuration Error", Content = "Manual configuration saving is not enabled for this script.", Image = 4384402990})
-		return false
-	end
-
-	if not writefile then
-		RayfieldLibrary:Notify({Title = "Configuration Error", Content = "Cannot save configuration - no filesystem support available.", Image = 4384402990})
-		return false
-	end
-
-	if not RayfieldLibrary.globalLoaded then
-		RayfieldLibrary:Notify({Title = "Configuration Error", Content = "Configuration system not ready yet. Please wait a moment.", Image = 4384402990})
-		return false
-	end
-
-	local success, result = pcall(function()
-		SaveConfiguration()
-	end)
-
-	if success then
-		RayfieldLibrary:Notify({Title = "Configuration Saved", Content = "Your configuration has been saved successfully!", Image = 4384403532})
-		return true
-	else
-		RayfieldLibrary:Notify({Title = "Save Error", Content = "Failed to save configuration. Check console for details.", Image = 4384402990})
-		warn('Rayfield SaveConfig Error | '..tostring(result))
-		return false
-	end
-end
-
--- Manual Load Configuration Function
-function RayfieldLibrary:LoadConfig()
-	if not ManualSaveEnabled then
-		RayfieldLibrary:Notify({Title = "Configuration Error", Content = "Manual configuration saving is not enabled for this script.", Image = 4384402990})
-		return false
-	end
-
-	if not isfile then
-		RayfieldLibrary:Notify({Title = "Configuration Error", Content = "Cannot load configuration - no filesystem support available.", Image = 4384402990})
-		return false
-	end
-
-	local success, result = pcall(function()
-		if isfile(ConfigurationFolder .. "/" .. CFileName .. ConfigurationExtension) then
-			local loaded = LoadConfiguration(readfile(ConfigurationFolder .. "/" .. CFileName .. ConfigurationExtension))
-			if loaded then
-				RayfieldLibrary:Notify({Title = "Configuration Loaded", Content = "Configuration has been loaded successfully!", Image = 4384403532})
-			else
-				RayfieldLibrary:Notify({Title = "Load Error", Content = "No changes were made to the configuration.", Image = 4384402990})
-			end
-			return loaded
-		else
-			RayfieldLibrary:Notify({Title = "Load Error", Content = "No configuration file found to load.", Image = 4384402990})
-			return false
-		end
-	end)
-
-	if not success then
-		RayfieldLibrary:Notify({Title = "Load Error", Content = "Failed to load configuration. Check console for details.", Image = 4384402990})
-		warn('Rayfield LoadConfig Error | '..tostring(result))
-		return false
-	end
-
-	return result
+	globalLoaded = true
 end
 
 
@@ -4180,21 +4069,6 @@ if useStudio then
 	--local Label2 = Tab:CreateLabel("Warning", 4483362458, Color3.fromRGB(255, 159, 49),  true)
 
 	--local Paragraph = Tab:CreateParagraph({Title = "Paragraph Example", Content = "Paragraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph Example"})
-
-	-- Manual Save/Load Configuration Buttons Example
-	--local SaveButton = Tab:CreateButton({
-	--	Name = "Save Configuration",
-	--	Callback = function()
-	--		RayfieldLibrary:SaveConfig()
-	--	end,
-	--})
-
-	--local LoadButton = Tab:CreateButton({
-	--	Name = "Load Configuration", 
-	--	Callback = function()
-	--		RayfieldLibrary:LoadConfig()
-	--	end,
-	--})
 end
 
 if CEnabled and Main:FindFirstChild('Notice') then
