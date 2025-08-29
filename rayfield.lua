@@ -2759,7 +2759,7 @@ function RayfieldLibrary:CreateWindow(Settings)
 					Dropdown.Interact.Active = true
 					Dropdown.Interact.Visible = true
 					pcall(function()
-						local sc = Dropdown.List:FindFirstChild("Placeholder")
+						local sc = Dropdown:FindFirstChild("Placeholder") or Dropdown.List:FindFirstChild("Placeholder")
 						if sc and sc:FindFirstChild("SearchBox") then
 							sc.SearchBox:ReleaseFocus()
 						end
@@ -2789,8 +2789,9 @@ function RayfieldLibrary:CreateWindow(Settings)
 					-- Ensure search box is visible and focused on open
 					pcall(function()
 						Dropdown.List.CanvasPosition = Vector2.new(0, 0)
-						local sc = Dropdown.List:FindFirstChild("Placeholder")
+						local sc = Dropdown:FindFirstChild("Placeholder") or Dropdown.List:FindFirstChild("Placeholder")
 						if sc and sc:FindFirstChild("SearchBox") then
+							sc.Visible = true
 							sc.SearchBox:CaptureFocus()
 						end
 					end)
@@ -2854,6 +2855,21 @@ function RayfieldLibrary:CreateWindow(Settings)
 			SearchBox.PlaceholderColor3 = SelectedTheme.PlaceholderColor or Color3.fromRGB(150,150,150)
 			SearchBox.ZIndex = 51
 			SearchBox.Active = true
+
+			-- Match font and size with existing library typography
+			pcall(function()
+				if Dropdown and Dropdown:FindFirstChild("Selected") then
+					local ref = Dropdown.Selected
+					if ref and ref.FontFace then
+						SearchBox.FontFace = ref.FontFace
+					else
+						SearchBox.Font = ref.Font
+					end
+					if ref and ref.TextSize then
+						SearchBox.TextSize = ref.TextSize
+					end
+				end
+			end)
 
 			local function filterDropdownOptions()
 				local query = string.lower(SearchBox.Text or "")
