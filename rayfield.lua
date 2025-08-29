@@ -2841,9 +2841,9 @@ function RayfieldLibrary:CreateWindow(Settings)
 					TweenService:Create(Dropdown, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {Size = UDim2.new(1, -10, 0, 210)}):Play()
 					local Search = ensureSearch()
 					Search.Visible = true
-					-- Shift list down by search height while preserving default X/size
-					Dropdown.List.Position = UDim2.new(_defaultListPos.X.Scale, _defaultListPos.X.Offset, _defaultListPos.Y.Scale, _defaultListPos.Y.Offset + 35)
-					Dropdown.List.Size = UDim2.new(_defaultListSize.X.Scale, _defaultListSize.X.Offset, _defaultListSize.Y.Scale, _defaultListSize.Y.Offset)
+					-- Match search margins: left = 7px, width = 1,-14; place below search
+					Dropdown.List.Position = UDim2.new(0, 7, 0, 80)
+					Dropdown.List.Size = UDim2.new(1, -14, 0, 120)
 					Dropdown.List.Visible = true
 					TweenService:Create(Dropdown.List, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {ScrollBarImageTransparency = 0.7}):Play()
 					TweenService:Create(Dropdown.Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Rotation = 0}):Play()	
@@ -4038,7 +4038,7 @@ if useStudio then
 
 	--local Label2 = Tab:CreateLabel("Warning", 4483362458, Color3.fromRGB(255, 159, 49),  true)
 
-	--local Paragraph = Tab:CreateParagraph({Title = "Paragraph Example", Content = "Paragraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph Example"})
+	--local Paragraph = Tab:CreateParagraph({Title = "Paragraph Example", Content = "Paragraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph Example"})
 end
 
 if CEnabled and Main:FindFirstChild('Notice') then
