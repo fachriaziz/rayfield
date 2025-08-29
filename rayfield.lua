@@ -2728,6 +2728,11 @@ function RayfieldLibrary:CreateWindow(Settings)
 
 			Dropdown.List.Visible = false
 			Dropdown.List.Position = UDim2.new(0, 0, 0, 95)
+			Dropdown.List.ClipsDescendants = true
+			Dropdown.List.AutomaticCanvasSize = Enum.AutomaticSize.Y
+			Dropdown.List.ScrollingDirection = Enum.ScrollingDirection.Y
+			Dropdown.List.ScrollBarThickness = 4
+			Dropdown.List.CanvasPosition = Vector2.new(0,0)
 			
 			-- Normalise paddings so options align with search box
 			for _, child in ipairs(Dropdown.List:GetChildren()) do
@@ -2870,6 +2875,7 @@ function RayfieldLibrary:CreateWindow(Settings)
 					DropdownOption.Title.Text = Option
 					DropdownOption.Parent = Dropdown.List
 					DropdownOption.Visible = true
+					DropdownOption.Size = UDim2.new(1, -20, 0, DropdownOption.Size.Y.Offset)
 					DropdownOption.BackgroundTransparency = 1
 					DropdownOption.UIStroke.Transparency = 1
 					DropdownOption.Title.TextTransparency = 1
