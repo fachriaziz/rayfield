@@ -2841,9 +2841,8 @@ function RayfieldLibrary:CreateWindow(Settings)
 					TweenService:Create(Dropdown, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {Size = UDim2.new(1, -10, 0, 210)}):Play()
 					local Search = ensureSearch()
 					Search.Visible = true
-					-- Match search margins: left = 7px, width = 1,-14; place below search
-					Dropdown.List.Position = UDim2.new(0, 7, 0, 80)
-					Dropdown.List.Size = UDim2.new(1, -14, 0, 120)
+					-- Keep original horizontal alignment/width; only push down under search
+					Dropdown.List.Position = UDim2.new(_defaultListPos.X.Scale, _defaultListPos.X.Offset, _defaultListPos.Y.Scale, _defaultListPos.Y.Offset + 34)
 					Dropdown.List.Visible = true
 					TweenService:Create(Dropdown.List, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {ScrollBarImageTransparency = 0.7}):Play()
 					TweenService:Create(Dropdown.Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Rotation = 0}):Play()	
