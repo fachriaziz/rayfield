@@ -2759,7 +2759,7 @@ function RayfieldLibrary:CreateWindow(Settings)
 					Dropdown.Interact.Active = true
 					Dropdown.Interact.Visible = true
 					pcall(function()
-						local sc = Dropdown:FindFirstChild("Placeholder") or Dropdown.List:FindFirstChild("Placeholder")
+						local sc = Dropdown.List:FindFirstChild("Placeholder")
 						if sc and sc:FindFirstChild("SearchBox") then
 							sc.SearchBox:ReleaseFocus()
 						end
@@ -2789,9 +2789,8 @@ function RayfieldLibrary:CreateWindow(Settings)
 					-- Ensure search box is visible and focused on open
 					pcall(function()
 						Dropdown.List.CanvasPosition = Vector2.new(0, 0)
-						local sc = Dropdown:FindFirstChild("Placeholder") or Dropdown.List:FindFirstChild("Placeholder")
+						local sc = Dropdown.List:FindFirstChild("Placeholder")
 						if sc and sc:FindFirstChild("SearchBox") then
-							sc.Visible = true
 							sc.SearchBox:CaptureFocus()
 						end
 					end)
