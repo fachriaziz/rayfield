@@ -2729,7 +2729,12 @@ function RayfieldLibrary:CreateWindow(Settings)
 			Dropdown.List.Visible = false
 			Dropdown.List.Position = UDim2.new(0, 0, 0, 95)
 			
-			-- Optional: minimal inner padding for visual balance
+			-- Normalise paddings so options align with search box
+			for _, child in ipairs(Dropdown.List:GetChildren()) do
+				if child:IsA("UIPadding") then
+					child:Destroy()
+				end
+			end
 			local ListPadding = Instance.new("UIPadding")
 			ListPadding.PaddingLeft = UDim.new(0, 10)
 			ListPadding.PaddingRight = UDim.new(0, 10)
@@ -2869,7 +2874,19 @@ function RayfieldLibrary:CreateWindow(Settings)
 					DropdownOption.UIStroke.Transparency = 1
 					DropdownOption.Title.TextTransparency = 1
 					
-					-- Keep options aligned with list padding; no extra per-option padding
+					-- Remove any built-in paddings from the option template
+					for _, child in ipairs(DropdownOption:GetChildren()) do
+						if child:IsA("UIPadding") then
+							child:Destroy()
+						end
+					end
+					-- Ensure the option title aligns consistently
+					if DropdownOption:FindFirstChild("Title") then
+						DropdownOption.Title.AnchorPoint = Vector2.new(0, 0.5)
+						DropdownOption.Title.Position = UDim2.new(0, 10, 0.5, 0)
+						DropdownOption.Title.Size = UDim2.new(1, -20, 0, DropdownOption.Title.Size.Y.Offset)
+						DropdownOption.Title.TextXAlignment = Enum.TextXAlignment.Left
+					end
 
 					--local Dropdown = Tab:CreateDropdown({
 					--	Name = "Dropdown Example",
