@@ -2859,6 +2859,10 @@ function RayfieldLibrary:CreateWindow(Settings)
 					DropdownOption.Parent = Dropdown.List
 					DropdownOption.Visible = true
 
+					-- Adjust positioning to move items away from left edge
+					DropdownOption.Position = UDim2.new(0, 10, 0, 0)
+					DropdownOption.Size = UDim2.new(1, -20, 0, 25)
+
 					DropdownOption.BackgroundTransparency = 1
 					DropdownOption.UIStroke.Transparency = 1
 					DropdownOption.Title.TextTransparency = 1
