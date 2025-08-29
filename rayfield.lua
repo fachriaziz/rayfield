@@ -2741,16 +2741,20 @@ function RayfieldLibrary:CreateWindow(Settings)
 
 			-- Search box support for dropdown filtering
 			local function ensureSearch()
-				local existing = Dropdown:FindFirstChild("Search")
+				local existing = Dropdown.List:FindFirstChild("Search") or Dropdown:FindFirstChild("Search")
+				if existing and existing.Parent ~= Dropdown.List then
+					existing.Parent = Dropdown.List
+				end
 				if existing then return existing end
 				local Search = Instance.new("Frame")
 				Search.Name = "Search"
-				Search.Parent = Dropdown
+				Search.Parent = Dropdown.List
 				Search.BackgroundColor3 = SelectedTheme.InputBackground
 				Search.Size = UDim2.new(1, -14, 0, 30)
-				Search.Position = UDim2.new(0, 7, 0, 46)
+				Search.Position = UDim2.new(0, 7, 0, 0)
 				Search.ZIndex = 50
 				Search.Visible = false
+				Search.LayoutOrder = -1000
 
 				local corner = Instance.new("UICorner")
 				corner.CornerRadius = UDim.new(0, 6)
@@ -2780,7 +2784,7 @@ function RayfieldLibrary:CreateWindow(Settings)
 				Input:GetPropertyChangedSignal("Text"):Connect(function()
 					local q = string.lower(Input.Text)
 					for _, child in ipairs(Dropdown.List:GetChildren()) do
-						if child.ClassName == "Frame" and child.Name ~= "Placeholder" then
+						if child.ClassName == "Frame" and child.Name ~= "Placeholder" and child ~= Search then
 							if #q == 0 then
 								child.Visible = true
 							else
