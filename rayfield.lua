@@ -2755,9 +2755,6 @@ function RayfieldLibrary:CreateWindow(Settings)
 				TweenService:Create(Dropdown.UIStroke, TweenInfo.new(0.4, Enum.EasingStyle.Exponential), {Transparency = 0}):Play()
 				if Debounce then return end
 				if Dropdown.List.Visible then
-					-- Closing: re-enable header interact so it can be clicked again later
-					Dropdown.Interact.Active = true
-					Dropdown.Interact.Visible = true
 					pcall(function()
 						local sc = Dropdown.List:FindFirstChild("Placeholder")
 						if sc and sc:FindFirstChild("SearchBox") then
@@ -2779,9 +2776,6 @@ function RayfieldLibrary:CreateWindow(Settings)
 					Dropdown.List.Visible = false
 					Debounce = false
 				else
-					-- Opening: disable header interact so clicks inside list (search box) don't close it
-					Dropdown.Interact.Active = false
-					Dropdown.Interact.Visible = false
 					TweenService:Create(Dropdown, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {Size = UDim2.new(1, -10, 0, 180)}):Play()
 					Dropdown.List.Visible = true
 					TweenService:Create(Dropdown.List, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {ScrollBarImageTransparency = 0.7}):Play()
@@ -2892,16 +2886,10 @@ function RayfieldLibrary:CreateWindow(Settings)
 				end
 			end)
 			SearchBox.Focused:Connect(function()
-				-- prevent accidental close when focusing
-				if Dropdown and Dropdown.List and Dropdown.List.Visible then
-					Dropdown.Interact.Active = false
-					Dropdown.Interact.Visible = false
-				end
+				-- keep header clickable; no need to change Interact
 			end)
 			SearchBox.FocusLost:Connect(function()
-				-- re-enable when leaving the search box (still open until header clicked)
-				Dropdown.Interact.Active = true
-				Dropdown.Interact.Visible = true
+				-- keep header clickable; no need to change Interact
 			end)
 
 			Rayfield.Main:GetPropertyChangedSignal('BackgroundColor3'):Connect(function()
