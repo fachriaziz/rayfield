@@ -2727,6 +2727,12 @@ function RayfieldLibrary:CreateWindow(Settings)
 
 			Dropdown.List.Visible = false
 			Dropdown.List.Position = UDim2.new(0, 0, 0, 85)
+			
+			-- Add padding to shift dropdown options to the right
+			local ListPadding = Instance.new("UIPadding")
+			ListPadding.PaddingLeft = UDim.new(0, 20)
+			ListPadding.PaddingRight = UDim.new(0, 20)
+			ListPadding.Parent = Dropdown.List
 			if DropdownSettings.CurrentOption then
 				if type(DropdownSettings.CurrentOption) == "string" then
 					DropdownSettings.CurrentOption = {DropdownSettings.CurrentOption}
@@ -2858,7 +2864,6 @@ function RayfieldLibrary:CreateWindow(Settings)
 					DropdownOption.Title.Text = Option
 					DropdownOption.Parent = Dropdown.List
 					DropdownOption.Visible = true
-
 					DropdownOption.BackgroundTransparency = 1
 					DropdownOption.UIStroke.Transparency = 1
 					DropdownOption.Title.TextTransparency = 1
