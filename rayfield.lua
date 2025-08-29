@@ -2697,53 +2697,7 @@ function RayfieldLibrary:CreateWindow(Settings)
 			Dropdown.Visible = true
 			Dropdown.Parent = TabPage
 
-			-- Create Search Box
-			local SearchBox = Instance.new("TextBox")
-			SearchBox.Name = "SearchBox"
-			SearchBox.Size = UDim2.new(1, -20, 0, 25)
-			SearchBox.AnchorPoint = Vector2.new(0.5, 0.5)
-			SearchBox.Position = UDim2.new(0.5, 0, 0, 62)
-			SearchBox.BackgroundColor3 = SelectedTheme.InputBackground
-			SearchBox.BorderSizePixel = 0
-			SearchBox.Text = ""
-			SearchBox.PlaceholderText = "Search..."
-			SearchBox.TextColor3 = SelectedTheme.TextColor
-			SearchBox.PlaceholderColor3 = SelectedTheme.PlaceholderColor
-			SearchBox.TextSize = 14
-			SearchBox.Font = Enum.Font.Gotham
-			SearchBox.TextXAlignment = Enum.TextXAlignment.Left
-			SearchBox.TextYAlignment = Enum.TextYAlignment.Center
-			SearchBox.ClearTextOnFocus = false
-			SearchBox.Visible = false
-			SearchBox.Parent = Dropdown
-
-			local SearchBoxStroke = Instance.new("UIStroke")
-			SearchBoxStroke.Color = SelectedTheme.InputStroke
-			SearchBoxStroke.Thickness = 1
-			SearchBoxStroke.Parent = SearchBox
-
-			local SearchBoxCorner = Instance.new("UICorner")
-			SearchBoxCorner.CornerRadius = UDim.new(0, 4)
-			SearchBoxCorner.Parent = SearchBox
-
 			Dropdown.List.Visible = false
-			Dropdown.List.Position = UDim2.new(0, 0, 0, 95)
-			Dropdown.List.ClipsDescendants = true
-			Dropdown.List.AutomaticCanvasSize = Enum.AutomaticSize.Y
-			Dropdown.List.ScrollingDirection = Enum.ScrollingDirection.Y
-			Dropdown.List.ScrollBarThickness = 4
-			Dropdown.List.CanvasPosition = Vector2.new(0,0)
-			
-			-- Normalise paddings so options align with search box
-			for _, child in ipairs(Dropdown.List:GetChildren()) do
-				if child:IsA("UIPadding") then
-					child:Destroy()
-				end
-			end
-			local ListPadding = Instance.new("UIPadding")
-			ListPadding.PaddingLeft = UDim.new(0, 10)
-			ListPadding.PaddingRight = UDim.new(0, 10)
-			ListPadding.Parent = Dropdown.List
 			if DropdownSettings.CurrentOption then
 				if type(DropdownSettings.CurrentOption) == "string" then
 					DropdownSettings.CurrentOption = {DropdownSettings.CurrentOption}
@@ -2785,6 +2739,67 @@ function RayfieldLibrary:CreateWindow(Settings)
 			TweenService:Create(Dropdown.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0}):Play()
 			TweenService:Create(Dropdown.Title, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()	
 
+			-- Search box support for dropdown filtering
+			local function ensureSearch()
+				local existing = Dropdown:FindFirstChild("Search")
+				if existing then return existing end
+				local Search = Instance.new("Frame")
+				Search.Name = "Search"
+				Search.Parent = Dropdown
+				Search.BackgroundColor3 = SelectedTheme.InputBackground
+				Search.Size = UDim2.new(1, -14, 0, 30)
+				Search.Position = UDim2.new(0, 7, 0, 46)
+				Search.ZIndex = 50
+				Search.Visible = false
+
+				local corner = Instance.new("UICorner")
+				corner.CornerRadius = UDim.new(0, 6)
+				corner.Parent = Search
+
+				local stroke = Instance.new("UIStroke")
+				stroke.Color = SelectedTheme.InputStroke
+				stroke.Thickness = 1
+				stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+				stroke.Parent = Search
+
+				local Input = Instance.new("TextBox")
+				Input.Name = "Input"
+				Input.Parent = Search
+				Input.BackgroundTransparency = 1
+				Input.ClearTextOnFocus = false
+				Input.PlaceholderText = "Search..."
+				Input.TextXAlignment = Enum.TextXAlignment.Left
+				Input.Font = Enum.Font.Gotham
+				Input.TextSize = 14
+				Input.TextColor3 = SelectedTheme.TextColor
+				Input.PlaceholderColor3 = SelectedTheme.PlaceholderColor
+				Input.Size = UDim2.new(1, -10, 1, 0)
+				Input.Position = UDim2.new(0, 5, 0, 0)
+				Input.ZIndex = 51
+
+				Input:GetPropertyChangedSignal("Text"):Connect(function()
+					local q = string.lower(Input.Text)
+					for _, child in ipairs(Dropdown.List:GetChildren()) do
+						if child.ClassName == "Frame" and child.Name ~= "Placeholder" then
+							if #q == 0 then
+								child.Visible = true
+							else
+								child.Visible = string.find(string.lower(child.Name), q, 1, true) ~= nil
+							end
+						end
+					end
+				end)
+
+				Rayfield.Main:GetPropertyChangedSignal('BackgroundColor3'):Connect(function()
+					Search.BackgroundColor3 = SelectedTheme.InputBackground
+					stroke.Color = SelectedTheme.InputStroke
+					Input.TextColor3 = SelectedTheme.TextColor
+					Input.PlaceholderColor3 = SelectedTheme.PlaceholderColor
+				end)
+
+				return Search
+			end
+
 			for _, ununusedoption in ipairs(Dropdown.List:GetChildren()) do
 				if ununusedoption.ClassName == "Frame" and ununusedoption.Name ~= "Placeholder" then
 					ununusedoption:Destroy()
@@ -2792,28 +2807,6 @@ function RayfieldLibrary:CreateWindow(Settings)
 			end
 
 			Dropdown.Toggle.Rotation = 180
-
-			-- Function to filter dropdown options based on search
-			local function filterOptions(searchText)
-				searchText = string.lower(searchText)
-				for _, option in ipairs(Dropdown.List:GetChildren()) do
-					if option.ClassName == "Frame" and option.Name ~= "Placeholder" then
-						local optionText = string.lower(option.Title.Text)
-						if string.find(optionText, searchText, 1, true) then
-							option.Visible = true
-						else
-							option.Visible = false
-						end
-					end
-				end
-			end
-
-			-- Search box text changed event
-			SearchBox.Changed:Connect(function(property)
-				if property == "Text" then
-					filterOptions(SearchBox.Text)
-				end
-			end)
 
 			Dropdown.Interact.MouseButton1Click:Connect(function()
 				TweenService:Create(Dropdown, TweenInfo.new(0.4, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.ElementBackgroundHover}):Play()
@@ -2825,8 +2818,12 @@ function RayfieldLibrary:CreateWindow(Settings)
 				if Dropdown.List.Visible then
 					Debounce = true
 					TweenService:Create(Dropdown, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {Size = UDim2.new(1, -10, 0, 45)}):Play()
-					SearchBox.Visible = false
-					SearchBox.Text = ""
+					if Dropdown:FindFirstChild("Search") then
+						Dropdown.Search.Visible = false
+						if Dropdown.Search:FindFirstChild("Input") then
+							Dropdown.Search.Input.Text = ""
+						end
+					end
 					for _, DropdownOpt in ipairs(Dropdown.List:GetChildren()) do
 						if DropdownOpt.ClassName == "Frame" and DropdownOpt.Name ~= "Placeholder" then
 							TweenService:Create(DropdownOpt, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {BackgroundTransparency = 1}):Play()
@@ -2840,10 +2837,14 @@ function RayfieldLibrary:CreateWindow(Settings)
 					Dropdown.List.Visible = false
 					Debounce = false
 				else
+					-- Expand a bit more to fit search box
 					TweenService:Create(Dropdown, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {Size = UDim2.new(1, -10, 0, 210)}):Play()
+					local Search = ensureSearch()
+					Search.Visible = true
+					-- Position list under the search box
+					Dropdown.List.Position = UDim2.new(0, 7, 0, 80)
+					Dropdown.List.Size = UDim2.new(1, -14, 0, 120)
 					Dropdown.List.Visible = true
-					SearchBox.Visible = true
-					SearchBox:CaptureFocus()
 					TweenService:Create(Dropdown.List, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {ScrollBarImageTransparency = 0.7}):Play()
 					TweenService:Create(Dropdown.Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Rotation = 0}):Play()	
 					for _, DropdownOpt in ipairs(Dropdown.List:GetChildren()) do
@@ -2875,24 +2876,10 @@ function RayfieldLibrary:CreateWindow(Settings)
 					DropdownOption.Title.Text = Option
 					DropdownOption.Parent = Dropdown.List
 					DropdownOption.Visible = true
-					DropdownOption.Size = UDim2.new(1, -20, 0, DropdownOption.Size.Y.Offset)
+
 					DropdownOption.BackgroundTransparency = 1
 					DropdownOption.UIStroke.Transparency = 1
 					DropdownOption.Title.TextTransparency = 1
-					
-					-- Remove any built-in paddings from the option template
-					for _, child in ipairs(DropdownOption:GetChildren()) do
-						if child:IsA("UIPadding") then
-							child:Destroy()
-						end
-					end
-					-- Ensure the option title aligns consistently
-					if DropdownOption:FindFirstChild("Title") then
-						DropdownOption.Title.AnchorPoint = Vector2.new(0, 0.5)
-						DropdownOption.Title.Position = UDim2.new(0, 10, 0.5, 0)
-						DropdownOption.Title.Size = UDim2.new(1, -20, 0, DropdownOption.Title.Size.Y.Offset)
-						DropdownOption.Title.TextXAlignment = Enum.TextXAlignment.Left
-					end
 
 					--local Dropdown = Tab:CreateDropdown({
 					--	Name = "Dropdown Example",
@@ -3083,10 +3070,6 @@ function RayfieldLibrary:CreateWindow(Settings)
 
 			Rayfield.Main:GetPropertyChangedSignal('BackgroundColor3'):Connect(function()
 				Dropdown.Toggle.ImageColor3 = SelectedTheme.TextColor
-				SearchBox.BackgroundColor3 = SelectedTheme.InputBackground
-				SearchBox.TextColor3 = SelectedTheme.TextColor
-				SearchBox.PlaceholderColor3 = SelectedTheme.PlaceholderColor
-				SearchBoxStroke.Color = SelectedTheme.InputStroke
 				TweenService:Create(Dropdown, TweenInfo.new(0.4, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.ElementBackground}):Play()
 			end)
 
