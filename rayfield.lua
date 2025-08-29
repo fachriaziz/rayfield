@@ -2755,6 +2755,9 @@ function RayfieldLibrary:CreateWindow(Settings)
 				TweenService:Create(Dropdown.UIStroke, TweenInfo.new(0.4, Enum.EasingStyle.Exponential), {Transparency = 0}):Play()
 				if Debounce then return end
 				if Dropdown.List.Visible then
+					-- Closing: re-enable header interact so it can be clicked again later
+					Dropdown.Interact.Active = true
+					Dropdown.Interact.Visible = true
 					Debounce = true
 					TweenService:Create(Dropdown, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {Size = UDim2.new(1, -10, 0, 45)}):Play()
 					for _, DropdownOpt in ipairs(Dropdown.List:GetChildren()) do
@@ -2770,10 +2773,21 @@ function RayfieldLibrary:CreateWindow(Settings)
 					Dropdown.List.Visible = false
 					Debounce = false
 				else
+					-- Opening: disable header interact so clicks inside list (search box) don't close it
+					Dropdown.Interact.Active = false
+					Dropdown.Interact.Visible = false
 					TweenService:Create(Dropdown, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {Size = UDim2.new(1, -10, 0, 180)}):Play()
 					Dropdown.List.Visible = true
 					TweenService:Create(Dropdown.List, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {ScrollBarImageTransparency = 0.7}):Play()
 					TweenService:Create(Dropdown.Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Rotation = 0}):Play()	
+					-- Ensure search box is visible and focused on open
+					pcall(function()
+						Dropdown.List.CanvasPosition = Vector2.new(0, 0)
+						local sc = Dropdown.List:FindFirstChild("Placeholder")
+						if sc and sc:FindFirstChild("SearchBox") then
+							sc.SearchBox:CaptureFocus()
+						end
+					end)
 					for _, DropdownOpt in ipairs(Dropdown.List:GetChildren()) do
 						if DropdownOpt.ClassName == "Frame" and DropdownOpt.Name ~= "Placeholder" then
 							if DropdownOpt.Name ~= Dropdown.Selected.Text then
@@ -2846,6 +2860,18 @@ function RayfieldLibrary:CreateWindow(Settings)
 			end
 
 			SearchBox:GetPropertyChangedSignal("Text"):Connect(filterDropdownOptions)
+			SearchBox.Focused:Connect(function()
+				-- prevent accidental close when focusing
+				if Dropdown and Dropdown.List and Dropdown.List.Visible then
+					Dropdown.Interact.Active = false
+					Dropdown.Interact.Visible = false
+				end
+			end)
+			SearchBox.FocusLost:Connect(function()
+				-- re-enable when leaving the search box (still open until header clicked)
+				Dropdown.Interact.Active = true
+				Dropdown.Interact.Visible = true
+			end)
 
 			Rayfield.Main:GetPropertyChangedSignal('BackgroundColor3'):Connect(function()
 				SearchContainer.BackgroundColor3 = SelectedTheme.InputBackground
