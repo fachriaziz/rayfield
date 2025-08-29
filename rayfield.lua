@@ -294,6 +294,7 @@ end
 
 local RayfieldLibrary = {
 	Flags = {},
+	globalLoaded = false,
 	Theme = {
 		Default = {
 			TextColor = Color3.fromRGB(240, 240, 240),
@@ -687,7 +688,6 @@ local Rayfield = useStudio and script.Parent:FindFirstChild('Rayfield') or game:
 local buildAttempts = 0
 local correctBuild = false
 local warned
-local globalLoaded
 local rayfieldDestroyed = false -- True when RayfieldLibrary:Destroy() is called
 
 repeat
@@ -994,7 +994,7 @@ local function LoadConfiguration(Configuration)
 end
 
 local function SaveConfiguration()
-	if not (CEnabled or ManualSaveEnabled) or not globalLoaded then return end
+	if not (CEnabled or ManualSaveEnabled) or not RayfieldLibrary.globalLoaded then return end
 
 	if debugX then
 		print('Saving')
@@ -1740,7 +1740,7 @@ function RayfieldLibrary:CreateWindow(Settings)
 		-- Make these accessible from outside
 		RayfieldLibrary.CEnabled = CEnabled
 		RayfieldLibrary.ManualSaveEnabled = ManualSaveEnabled
-		RayfieldLibrary.globalLoaded = globalLoaded
+		RayfieldLibrary.globalLoaded = RayfieldLibrary.globalLoaded
 		RayfieldLibrary.ConfigurationFolder = ConfigurationFolder
 		RayfieldLibrary.CFileName = CFileName
 
@@ -2427,7 +2427,7 @@ function RayfieldLibrary:CreateWindow(Settings)
 			end)
 
 			if Settings.ConfigurationSaving then
-				if Settings.ConfigurationSaving.Enabled and ColorPickerSettings.Flag then
+				if (Settings.ConfigurationSaving.Enabled or Settings.ManualSave) and ColorPickerSettings.Flag then
 					RayfieldLibrary.Flags[ColorPickerSettings.Flag] = ColorPickerSettings
 				end
 			end
@@ -2716,7 +2716,7 @@ function RayfieldLibrary:CreateWindow(Settings)
 			end
 
 			if Settings.ConfigurationSaving then
-				if Settings.ConfigurationSaving.Enabled and InputSettings.Flag then
+				if (Settings.ConfigurationSaving.Enabled or Settings.ManualSave) and InputSettings.Flag then
 					RayfieldLibrary.Flags[InputSettings.Flag] = InputSettings
 				end
 			end
@@ -3137,7 +3137,7 @@ function RayfieldLibrary:CreateWindow(Settings)
 			end
 
 			if Settings.ConfigurationSaving then
-				if Settings.ConfigurationSaving.Enabled and DropdownSettings.Flag then
+				if (Settings.ConfigurationSaving.Enabled or Settings.ManualSave) and DropdownSettings.Flag then
 					RayfieldLibrary.Flags[DropdownSettings.Flag] = DropdownSettings
 				end
 			end
@@ -3268,7 +3268,7 @@ function RayfieldLibrary:CreateWindow(Settings)
 			end
 
 			if Settings.ConfigurationSaving then
-				if Settings.ConfigurationSaving.Enabled and KeybindSettings.Flag then
+				if (Settings.ConfigurationSaving.Enabled or Settings.ManualSave) and KeybindSettings.Flag then
 					RayfieldLibrary.Flags[KeybindSettings.Flag] = KeybindSettings
 				end
 			end
@@ -3422,7 +3422,7 @@ function RayfieldLibrary:CreateWindow(Settings)
 
 			if not ToggleSettings.Ext then
 				if Settings.ConfigurationSaving then
-					if Settings.ConfigurationSaving.Enabled and ToggleSettings.Flag then
+					if (Settings.ConfigurationSaving.Enabled or Settings.ManualSave) and ToggleSettings.Flag then
 						RayfieldLibrary.Flags[ToggleSettings.Flag] = ToggleSettings
 					end
 				end
@@ -3605,7 +3605,7 @@ function RayfieldLibrary:CreateWindow(Settings)
 			end
 
 			if Settings.ConfigurationSaving then
-				if Settings.ConfigurationSaving.Enabled and SliderSettings.Flag then
+				if (Settings.ConfigurationSaving.Enabled or Settings.ManualSave) and SliderSettings.Flag then
 					RayfieldLibrary.Flags[SliderSettings.Flag] = SliderSettings
 				end
 			end
@@ -3900,7 +3900,7 @@ function RayfieldLibrary:LoadConfiguration()
 		end
 	end
 
-	globalLoaded = true
+	RayfieldLibrary.globalLoaded = true
 end
 
 -- Manual Save Configuration Function
@@ -3915,7 +3915,7 @@ function RayfieldLibrary:SaveConfig()
 		return false
 	end
 
-	if not globalLoaded then
+	if not RayfieldLibrary.globalLoaded then
 		RayfieldLibrary:Notify({Title = "Configuration Error", Content = "Configuration system not ready yet. Please wait a moment.", Image = 4384402990})
 		return false
 	end
