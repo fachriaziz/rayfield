@@ -1012,6 +1012,219 @@ local function SaveConfiguration()
 	end
 end
 
+-- Manual Save Configuration Function
+function RayfieldLibrary:SaveConfig()
+	if not globalLoaded then 
+		RayfieldLibrary:Notify({
+			Title = "Configuration Error", 
+			Content = "Cannot save configuration before the interface is fully loaded.", 
+			Duration = 5, 
+			Image = 4483362458
+		})
+		return false 
+	end
+
+	if not writefile then
+		RayfieldLibrary:Notify({
+			Title = "Configuration Error", 
+			Content = "Cannot save configuration - no file system access available.", 
+			Duration = 5, 
+			Image = 4483362458
+		})
+		return false
+	end
+
+	local Data = {}
+	for i, v in pairs(RayfieldLibrary.Flags) do
+		if v.Type == "ColorPicker" then
+			Data[i] = PackColor(v.Color)
+		else
+			if typeof(v.CurrentValue) == 'boolean' then
+				if v.CurrentValue == false then
+					Data[i] = false
+				else
+					Data[i] = v.CurrentValue or v.CurrentKeybind or v.CurrentOption or v.Color
+				end
+			else
+				Data[i] = v.CurrentValue or v.CurrentKeybind or v.CurrentOption or v.Color
+			end
+		end
+	end
+
+	local success, result = pcall(function()
+		if useStudio then
+			if script.Parent:FindFirstChild('configuration') then script.Parent.configuration:Destroy() end
+
+			local ScreenGui = Instance.new("ScreenGui")
+			ScreenGui.Parent = script.Parent
+			ScreenGui.Name = 'configuration'
+
+			local TextBox = Instance.new("TextBox")
+			TextBox.Parent = ScreenGui
+			TextBox.Size = UDim2.new(0, 800, 0, 50)
+			TextBox.AnchorPoint = Vector2.new(0.5, 0)
+			TextBox.Position = UDim2.new(0.5, 0, 0, 30)
+			TextBox.Text = HttpService:JSONEncode(Data)
+			TextBox.ClearTextOnFocus = false
+		end
+
+		if writefile then
+			writefile(ConfigurationFolder .. "/" .. CFileName .. ConfigurationExtension, tostring(HttpService:JSONEncode(Data)))
+		end
+	end)
+
+	if success then
+		RayfieldLibrary:Notify({
+			Title = "Configuration Saved", 
+			Content = "Your configuration has been saved successfully!", 
+			Duration = 3, 
+			Image = 4483362458
+		})
+		return true
+	else
+		RayfieldLibrary:Notify({
+			Title = "Save Error", 
+			Content = "Failed to save configuration: " .. tostring(result), 
+			Duration = 5, 
+			Image = 4483362458
+		})
+		return false
+	end
+end
+
+-- Manual Load Configuration Function
+function RayfieldLibrary:LoadConfig()
+	if not globalLoaded then 
+		RayfieldLibrary:Notify({
+			Title = "Configuration Error", 
+			Content = "Cannot load configuration before the interface is fully loaded.", 
+			Duration = 5, 
+			Image = 4483362458
+		})
+		return false 
+	end
+
+	if not isfile or not readfile then
+		RayfieldLibrary:Notify({
+			Title = "Configuration Error", 
+			Content = "Cannot load configuration - no file system access available.", 
+			Duration = 5, 
+			Image = 4483362458
+		})
+		return false
+	end
+
+	local success, result = pcall(function()
+		if useStudio then
+			-- For studio testing, you can modify this part
+			local config = [[{"Toggle1adwawd":true,"ColorPicker1awd":{"B":255,"G":255,"R":255},"Slider1dawd":100,"ColorPicfsefker1":{"B":255,"G":255,"R":255},"Slidefefsr1":80,"dawdawd":"","Input1":"hh","Keybind1":"B","Dropdown1":["Ocean"]}]]
+			local loaded = LoadConfiguration(config)
+			return loaded
+		end
+
+		if isfile(ConfigurationFolder .. "/" .. CFileName .. ConfigurationExtension) then
+			local loaded = LoadConfiguration(readfile(ConfigurationFolder .. "/" .. CFileName .. ConfigurationExtension))
+			return loaded
+		else
+			return false, "Configuration file not found"
+		end
+	end)
+
+	if success and result then
+		RayfieldLibrary:Notify({
+			Title = "Configuration Loaded", 
+			Content = "Your configuration has been loaded successfully!", 
+			Duration = 3, 
+			Image = 4483362458
+		})
+		return true
+	else
+		local errorMsg = "Failed to load configuration"
+		if not success then
+			errorMsg = errorMsg .. ": " .. tostring(result)
+		elseif result == false then
+			errorMsg = errorMsg .. ": Configuration file not found"
+		end
+		
+		RayfieldLibrary:Notify({
+			Title = "Load Error", 
+			Content = errorMsg, 
+			Duration = 5, 
+			Image = 4483362458
+		})
+		return false
+	end
+end
+
+-- Get Configuration Data as JSON String (for manual handling)
+function RayfieldLibrary:GetConfigData()
+	if not globalLoaded then 
+		return nil, "Interface not loaded"
+	end
+
+	local Data = {}
+	for i, v in pairs(RayfieldLibrary.Flags) do
+		if v.Type == "ColorPicker" then
+			Data[i] = PackColor(v.Color)
+		else
+			if typeof(v.CurrentValue) == 'boolean' then
+				if v.CurrentValue == false then
+					Data[i] = false
+				else
+					Data[i] = v.CurrentValue or v.CurrentKeybind or v.CurrentOption or v.Color
+				end
+			else
+				Data[i] = v.CurrentValue or v.CurrentKeybind or v.CurrentOption or v.Color
+			end
+		end
+	end
+
+	local success, jsonData = pcall(function()
+		return HttpService:JSONEncode(Data)
+	end)
+
+	if success then
+		return jsonData
+	else
+		return nil, "Failed to encode configuration data"
+	end
+end
+
+-- Set Configuration Data from JSON String (for manual handling)
+function RayfieldLibrary:SetConfigData(jsonData)
+	if not globalLoaded then 
+		return false, "Interface not loaded"
+	end
+
+	local success, Data = pcall(function() 
+		return HttpService:JSONDecode(jsonData) 
+	end)
+
+	if not success then
+		return false, "Invalid JSON data"
+	end
+
+	local loaded = LoadConfiguration(jsonData)
+	
+	if loaded then
+		RayfieldLibrary:Notify({
+			Title = "Configuration Applied", 
+			Content = "Configuration data has been applied successfully!", 
+			Duration = 3, 
+			Image = 4483362458
+		})
+		return true
+	else
+		RayfieldLibrary:Notify({
+			Title = "Configuration Error", 
+			Content = "Failed to apply configuration data", 
+			Duration = 5, 
+			Image = 4483362458
+		})
+		return false
+	end
+end
+
 function RayfieldLibrary:Notify(data) -- action e.g open messages
 	task.spawn(function()
 
