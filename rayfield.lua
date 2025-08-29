@@ -1736,6 +1736,13 @@ function RayfieldLibrary:CreateWindow(Settings)
 		ConfigurationFolder = Settings.ConfigurationSaving.FolderName or ConfigurationFolder
 		CEnabled = Settings.ConfigurationSaving.Enabled
 		ManualSaveEnabled = Settings.ManualSave
+		
+		-- Make these accessible from outside
+		RayfieldLibrary.CEnabled = CEnabled
+		RayfieldLibrary.ManualSaveEnabled = ManualSaveEnabled
+		RayfieldLibrary.globalLoaded = globalLoaded
+		RayfieldLibrary.ConfigurationFolder = ConfigurationFolder
+		RayfieldLibrary.CFileName = CFileName
 
 		-- Create folder if either auto-save or manual save is enabled
 		if Settings.ConfigurationSaving.Enabled or Settings.ManualSave then
